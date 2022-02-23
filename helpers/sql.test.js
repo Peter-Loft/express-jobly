@@ -1,6 +1,7 @@
 "use strict";
 
 const sql = require("./sql");
+const {sqlForPartialUpdate} = require("./sql");
 sql.sqlForPartialUpdate = jest.fn();
 
 describe("Somethign else", function () {
@@ -18,5 +19,16 @@ describe("Somethign else", function () {
         expect(result).toEqual({ error: { message: "No data" } });
     });
 
-    
+    test('Object has one valid key', function () {
+        const result = sqlForPartialUpdate(
+            {name: "NewComp"}, {
+                numEmployees: "num_employees",
+                logoUrl: "logo_url",
+            }
+        );
+        //CR Q: Where did the backslashes come from? Shouldn't it 
+        // just return "name"="$1"?
+        expect(result).toEqual({ setCols: "\"name\"=$1",
+            values: ["NewComp"] });
+    });
 });
