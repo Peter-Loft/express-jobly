@@ -1,6 +1,12 @@
 const { BadRequestError } = require("../expressError");
 
 // THIS NEEDS SOME GREAT DOCUMENTATION.
+/** Prepare variables for sanitization/naming convention and UPDATE query
+ * 
+ * Takes in object of data and object of js variable keys with sql variable values
+ * 
+ * Returns { setCols: "first_name=$1, ...", values: [value_$1, value_$2, ...] }
+ */
 
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const keys = Object.keys(dataToUpdate);
