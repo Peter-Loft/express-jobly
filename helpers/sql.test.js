@@ -31,4 +31,6 @@ describe("Somethign else", function () {
         expect(result).toEqual({ setCols: "\"name\"=$1",
             values: ["NewComp"] });
     });
+
+    // test('Invalid key, not in SQL table')
 });
