@@ -14,7 +14,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 
   // {firstName: 'Aliya', age: 32} => ['"first_name"=$1', '"age"=$2']
   const cols = keys.map((colName, idx) =>
-      `"${jsToSql[colName] || colName}"=$${idx + 1}`,
+    `"${jsToSql[colName] || colName}"=$${idx + 1}`,
   );
 
   return {
@@ -27,8 +27,37 @@ function prepareCompanyFilters(filters) {
   const keys = Object.keys(filters);
   if (keys.length === 0) return;
 
-  
+  let whereQuery = [];
+  let filterValues = [];
+  let i = 1;
+
+  for (let key in filters) {
+    if (key === "name") {
+      whereQuery.push(`name ILIKE $${i}`);
+      filterValues.push(`%${filters[key]}%`);
+      i++;
+
+    } else if (key === "minEmployees") {
+      whereQuery.push(`num_employees >= $${i}`);
+      filterValues.push(Number(filters[key]));
+      i++;
+
+    } else if (key === "maxEmployees") {
+      whereQuery.push(`num_employees <= $${i}`);
+      filterValues.push(Number(filters[key]));
+      i++;
+
+    }
+  }
+
+  return {
+    filterStatement: whereQuery.join(" AND "),
+    values: filterValues,
+  };
 
 }
 
-module.exports = { sqlForPartialUpdate };
+module.exports = {
+  sqlForPartialUpdate,
+  prepareCompanyFilters
+};
