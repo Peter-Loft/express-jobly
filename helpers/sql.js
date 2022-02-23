@@ -23,4 +23,12 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
+function prepareCompanyFilters(filters) {
+  const keys = Object.keys(filters);
+  if (keys.length === 0) return;
+
+  
+
+}
+
 module.exports = { sqlForPartialUpdate };
