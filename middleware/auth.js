@@ -42,8 +42,24 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+/** Middleware to use when they must be logged in as an Admin.
+ *
+ * If not, raises Unauthorized.
+ * CR: should we double the logic to check if the user logged in
+ */
+
+ function ensureIsAdmin(req, res, next) {
+  try {
+    if (res.locals.isAdmin === false) throw new UnauthorizedError();
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  ensureIsAdmin,
 };
