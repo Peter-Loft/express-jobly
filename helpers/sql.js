@@ -7,7 +7,7 @@ const { BadRequestError } = require("../expressError");
  * 
  * Returns { setCols: "first_name=$1, ...", values: [value_$1, value_$2, ...] }
  */
-
+//CR Provide example of what is taken in, in DOCstring
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const keys = Object.keys(dataToUpdate);
   if (keys.length === 0) throw new BadRequestError("No data");
@@ -23,6 +23,13 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
+/** Converting query string arguments to object of psql statement strings
+ * 
+ * Takes in paramets from query string
+ * 
+ * Returns { filterStatement: "name=$1, ...", values: [value_$1, ...] }
+*/
+//CR Probably would be beter as static method in company model.
 function prepareCompanyFilters(filters) {
   const keys = Object.keys(filters);
   if (keys.length === 0) return;
@@ -30,12 +37,13 @@ function prepareCompanyFilters(filters) {
   let whereQuery = [];
   let filterValues = [];
   let i = 1;
-
+  //CR can drop the for loop. If name in filters.
   for (let key in filters) {
     if (key === "name") {
       whereQuery.push(`name ILIKE $${i}`);
       filterValues.push(`%${filters[key]}%`);
       i++;
+      //CR can add ++ after line 43 ${i - This will return current and then incrment.
 
     } else if (key === "minEmployees") {
       whereQuery.push(`num_employees >= $${i}`);

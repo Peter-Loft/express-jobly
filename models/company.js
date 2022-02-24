@@ -66,6 +66,14 @@ class Company {
     return companiesRes.rows;
   }
 
+  /** Find all companies with optional filters
+   *  Accepts objects of 'WHERE' statement and 'VALUES' for sanitzation
+   *  
+   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * 
+   * Throws NotFoundError if not found.
+   */
+
   static async findAllWithFilter(filter) {
     console.log(filter);
     const companiesRes = await db.query(
@@ -77,6 +85,9 @@ class Company {
           FROM companies
           WHERE ${filter.filterStatement}`, filter.values);
     console.log("companiesRes.rows :", companiesRes);
+
+    if (!companiesRes.rows[0]) throw new NotFoundError(`No companies with selected filters found`);
+      //CR Could also return empty array. As long as approach is consistent, error is ok.
     return companiesRes.rows;
   }
 

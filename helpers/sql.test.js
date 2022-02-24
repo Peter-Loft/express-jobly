@@ -1,9 +1,9 @@
 "use strict";
 
-const { sqlForPartialUpdate } = require("./sql");
+const { sqlForPartialUpdate, prepareCompanyFilters } = require("./sql");
 const { BadRequestError, NotFoundError } = require("../expressError");
 
-describe("Somethign else", function () {
+describe("sqlForPartialUpdate function tests", function () {
     test('Object has no keys', function () {
         try {
             sqlForPartialUpdate({})
@@ -37,4 +37,50 @@ describe("Somethign else", function () {
         }
     });
 
+});
+
+describe("prepareCompanyFilters function tests", function () {
+    test('Single parameter', function () {
+        const filter = {
+            "name":"New Company Name"
+        };
+
+        const result = prepareCompanyFilters(filter);
+
+        expect(result).toEqual({
+            filterStatement: "name ILIKE $1",
+            values: ["%New Company Name%"]
+        });
+    });
+
+    test('Two parameters', function () {
+        const filter = {
+            "name":"New Company Name",
+            "minEmployees":"500"
+        };
+
+        const result = prepareCompanyFilters(filter);
+
+        expect(result).toEqual({
+            filterStatement: "name ILIKE $1 AND num_employees >= $2",
+            values: ["%New Company Name%", 500]
+        });
+    });
+
+    test('Four parameters (ignore(s) extra parameter)', function () {
+        const filter = {
+            "name":"New Company Name",
+            "minEmployees":"500",
+            "maxEmployees":"1500",
+            "bogus-argument":"sobogus"
+        };
+
+        const result = prepareCompanyFilters(filter);
+
+        expect(result).toEqual({
+            filterStatement: 
+            `name ILIKE $1 AND num_employees >= $2 AND num_employees <= $3`,
+            values: ["%New Company Name%", 500, 1500]
+        });
+    });
 });

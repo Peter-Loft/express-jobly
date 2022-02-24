@@ -48,14 +48,18 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
+  //CR This check is probably better to do in the filter method
   if (req.query.maxEmployees < req.query.minEmployees) {
     throw new BadRequestError("minEmployee cannot exceed maxEmployee");
   }
-
+  //CR Good spot for JSONSchema Validation
+    //If exist, turn into integers, then schema validate
   //Prepares query variables for SQL
   let filters = prepareCompanyFilters(req.query);
+  //CR Should be const
   let companies;
 
+  //CR Good spot for ternary
   if (filters) {
     companies = await Company.findAllWithFilter(filters);
   } else {
