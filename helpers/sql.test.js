@@ -13,7 +13,7 @@ describe("sqlForPartialUpdate function tests", function () {
         }
 
     });
-
+    //CR Prove that the JS to sql bit is wokring
     test('Works', function () {
         const result = sqlForPartialUpdate(
             { name: "NewComp" }, {
