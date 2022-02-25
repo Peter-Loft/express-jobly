@@ -173,3 +173,100 @@ describe("prepareJobFitlers", function () {
     });
   });
 });
+
+/************************************** get */
+
+describe("get", function () {
+  test("works", async function () {
+    let company = await Job.get("Conservator, furniture");
+    expect(company).toEqual({
+      title: "Conservator, furniture",
+      salary: "110000",
+      equity: "0",
+      companyHandle: "c1",
+    });
+  });
+
+  test("not found if no such company", async function () {
+    try {
+      await Company.get("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
+/************************************** update */
+
+describe("update", function () {
+  const updateData = {
+    title: "Updated Job Title",
+    salary: "1",
+    equity: 20,
+    companyHandle: "Updated Comp Handle",
+  };
+
+  test("works", async function () {
+    let job = await Job.update("Conservator, furniture", updateData);
+    expect(job).toEqual({
+      ...updateData,
+    });
+
+    const result = await db.query(
+      `SELECT title, salary, equity, company_handle
+           FROM companies
+           WHERE handle = 'c1'`);
+    expect(result.rows).toEqual([{
+      ...updateData,
+      // title: "Updated Job Title",
+      // salary: "1",
+      // equity: 20,
+      // companyHandle: "Updated Comp Handle",
+    }]);
+  });
+
+  test("works: null fields", async function () {
+    const updateData = {
+      title: "Updated Job Title",
+      salary: "1",
+      equity: null,
+      companyHandle: null,
+    };
+
+    let company = await Company.update("c1", updateData);
+    expect(company).toEqual({
+      ...updateData,
+    });
+
+    const result = await db.query(
+      `SELECT handle, name, description, num_employees, logo_url
+           FROM companies
+           WHERE handle = 'c1'`);
+    expect(result.rows).toEqual([{
+      handle: "c1",
+      name: "New",
+      description: "New Description",
+      num_employees: null,
+      logo_url: null,
+    }]);
+  });
+
+  test("not found if no such company", async function () {
+    try {
+      await Company.update("nope", updateData);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("bad request with no data", async function () {
+    try {
+      await Company.update("c1", {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
