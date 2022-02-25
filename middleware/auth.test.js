@@ -116,7 +116,7 @@ describe("ensureCorrectOrAdmin", function () {
   test("works user access self", function () {
     expect.assertions(1);
     const req = { params: { username: "test" } };
-    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const res = { locals: { user: { username: "test", isAdmin: "false" } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };
@@ -126,7 +126,7 @@ describe("ensureCorrectOrAdmin", function () {
   test("works admin access user", function () {
     expect.assertions(1);
     const req = { params: { username: "test" } };
-    const res = { locals: { user: { username: "test42", isAdmin: true } } };
+    const res = { locals: { user: { username: "test42", isAdmin: "true" } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };
@@ -136,19 +136,9 @@ describe("ensureCorrectOrAdmin", function () {
   test("unauth if user access diff user", function () {
     expect.assertions(1);
     const req = { params: { username: "test" } };
-    const res = { locals: { user: { username: "test2", isAdmin: false } }};
+    const res = { locals: { user: { username: "test2", isAdmin: "false" } }};
     const next = function (err) {
-      expect(err instanceof UnauthorizedError).toBeTruthy();
-    };
-    ensureCorrectOrAdmin(req, res, next);
-  });
-
-  //CR added during code review. 
-  test("unauth if user access diff user", function () {
-    expect.assertions(1);
-    const req = { params: { username: "test" } };
-    const res = { locals: { user: { username: "test2", isAdmin: 'false' } }};
-    const next = function (err) {
+      console.log("ERROR WITHIN THE UNAUTH FUNCTION: ", err);
       expect(err instanceof UnauthorizedError).toBeTruthy();
     };
     ensureCorrectOrAdmin(req, res, next);
