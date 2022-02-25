@@ -17,14 +17,14 @@ class Job {
    * Throws BadRequestError if Job already in database.
    * */
 
-  static async create({title, salary, equity, companyHandle}) {
+  static async create({ title, salary, equity, companyHandle }) {
     const duplicateCheck = await db.query(`
       SELECT title
         FROM jobs
         WHERE title = $1
     `, [title]);
 
-    if (duplicateCheck.rows[0]){
+    if (duplicateCheck.rows[0]) {
       throw new BadRequestError(`Duplicate Job: ${title}`);
     }
 
@@ -37,15 +37,15 @@ class Job {
       )
         VALUES ($1,$2, $3, $4)
         RETURNING title, salary, equity, company_handle AS "companyHandle"`,
-        [title, salary, equity, companyHandle]
+      [title, salary, equity, companyHandle]
     );
 
-    const job =result.rows[0];
+    const job = result.rows[0];
     return job;
 
   }
 
-    /** Find all jobs.
+  /** Find all jobs.
    *
    * Returns [{ id, title, salary, equity, companyHandle }, ...]
    * */
@@ -57,14 +57,43 @@ class Job {
               salary,
               equity,
               company_handle AS "companyHandle"
-      FROM jobs`      
-    )
+      FROM jobs`
+    );
     if (!jobsRes.rows[0]) throw new NotFoundError(`No jobs found`);
 
-      return jobsRes.rows;
+    return jobsRes.rows;
 
   }
 
+  /** Find all jobs within the matching filters.
+   *
+   * Returns [{ id, title, salary, equity, companyHandle }, ...]
+   * */
+
+  static async findAllWithFilter(filter) {
+
+    const jobsRes = await db.query(
+      `SELECT id,
+              title,
+              salary,
+              equity,
+              company_handle AS "companyHandle"
+      FROM jobs
+      WHERE ${filter.filterStatement}`, filter.values
+    );
+    if (!jobsRes.rows[0]) throw new NotFoundError(`No jobs found`);
+
+    return jobsRes.rows;
+
+  }
+
+
+  /** Converting query string arguments to object of psql statement strings
+   * 
+   * Takes in paramets from query string
+   * 
+   * Returns { filterStatement: "name=$1, ...", values: [value_$1, ...] }
+   */
   static prepareJobFilters(filters) {
     const keys = Object.keys(filters);
     if (keys.length === 0) return;
@@ -73,26 +102,27 @@ class Job {
     let filterValues = [];
     let i = 1;
 
-    if ("title" in keys) {
+    if ("title" in filters) {
       whereQuery.push(`title ILIKE $${i++}`);
       filterValues.push(`%${filters['title']}%`);
     }
 
-    if ("minSalary" in keys) {
-      whereQuery.push(`min_salary <= $${i++}`);
+    if ("minSalary" in filters) {
+      whereQuery.push(`salary >= $${i++}`);
       filterValues.push(Number(filters['minSalary']));
     }
 
-    if ("hasEquity" in keys && keys.hasEquity === true) {
-      whereQuery.push(`has_equity > 0`)
+    if ("hasEquity" in filters && filters.hasEquity === true) {
+      whereQuery.push(`equity > 0`)
     }
 
     return {
       filterStatement: whereQuery.join(" AND "),
       values: filterValues,
     }
-
   }
+
+
 }
 
 module.exports = Job;
