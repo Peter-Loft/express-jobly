@@ -6,6 +6,7 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  testJobIds
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -17,7 +18,7 @@ describe("create", function () {
   const newJob = {
     title: "New Position",
     salary: 100000,
-    equity: 0.0,
+    equity: "0",
     companyHandle: "c1"
   }
 
@@ -26,7 +27,7 @@ describe("create", function () {
     expect(job).toEqual(newJob);
 
     const result = await db.query(`
-      SELECT title, salary, equity, company_handle
+      SELECT title, salary, equity, company_handle AS "companyHandle"
         FROM jobs
         WHERE title = 'New Position'
     `);
@@ -35,7 +36,7 @@ describe("create", function () {
       {
         title: "New Position",
         salary: 100000,
-        equity: 0.0,
+        equity: "0",
         companyHandle: "c1"
       }
     ]);
@@ -60,22 +61,22 @@ describe("findAll", function () {
   test("works: no filters", async function () {
     let jobs = await Job.findAll();
     expect(jobs).toEqual([
-      { id: 1,
+      { id: testJobIds[0],
       title: "Conservator, furniture",
       salary: 110000,
-      equity: 0,
+      equity: "0",
       companyHandle: "c1"
     },
-      { id: 2,
+      { id: testJobIds[1],
       title: "Information officer",
       salary: 200000,
-      equity: 0,
+      equity: "0",
       companyHandle: "c1"
     },
-      { id: 3,
+      { id: testJobIds[2],
       title: "Consulting civil engineer",
       salary: 60000,
-      equity: 0,
+      equity: "0",
       companyHandle: "c3"
     }]);
 

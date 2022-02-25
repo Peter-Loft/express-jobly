@@ -36,12 +36,61 @@ class Job {
         company_handle
       )
         VALUES ($1,$2, $3, $4)
-        RETURNING id, title, salary, equity, company_handle AS "compayHandle"`,
+        RETURNING title, salary, equity, company_handle AS "companyHandle"`,
         [title, salary, equity, companyHandle]
     );
 
     const job =result.rows[0];
     return job;
+
+  }
+
+    /** Find all jobs.
+   *
+   * Returns [{ id, title, salary, equity, companyHandle }, ...]
+   * */
+
+  static async findAll() {
+    const jobsRes = await db.query(
+      `SELECT id,
+              title,
+              salary,
+              equity,
+              company_handle AS "companyHandle"
+      FROM jobs`      
+    )
+    if (!jobsRes.rows[0]) throw new NotFoundError(`No jobs found`);
+
+      return jobsRes.rows;
+
+  }
+
+  static prepareJobFilters(filters) {
+    const keys = Object.keys(filters);
+    if (keys.length === 0) return;
+
+    let whereQuery = [];
+    let filterValues = [];
+    let i = 1;
+
+    if ("title" in keys) {
+      whereQuery.push(`title ILIKE $${i++}`);
+      filterValues.push(`%${filters['title']}%`);
+    }
+
+    if ("minSalary" in keys) {
+      whereQuery.push(`min_salary <= $${i++}`);
+      filterValues.push(Number(filters['minSalary']));
+    }
+
+    if ("hasEquity" in keys && keys.hasEquity === true) {
+      whereQuery.push(`has_equity > 0`)
+    }
+
+    return {
+      filterStatement: whereQuery.join(" AND "),
+      values: filterValues,
+    }
 
   }
 }
