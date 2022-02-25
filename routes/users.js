@@ -14,6 +14,7 @@ const userUpdateSchema = require("../schemas/userUpdate.json");
 
 const router = express.Router();
 
+//CR UPDATE ALL DOCSTRING FOR AUTH CHANGES
 
 /** POST / { user }  => { user, token }
  *

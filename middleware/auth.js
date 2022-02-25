@@ -52,6 +52,7 @@ function ensureLoggedIn(req, res, next) {
 
 function ensureIsAdmin(req, res, next) {
   try {
+    //CR Must be exactly equal to not true. Safer. Sring could come in as false.
     if (res.locals.user.isAdmin === false) throw new UnauthorizedError();
     return next();
   } catch (err) {
@@ -77,25 +78,18 @@ function ensureCorrectUser(req, res, next) {
 /** Checks if user is logged in OR is admin */
 
 function ensureCorrectOrAdmin(req, res, next) {
-  //const { username, isAdmin } = res.locals.user;
-  const username = ('username' in res.locals.user)
-    ? res.locals.user.username : undefined;
 
-  const isAdmin = ('isAdmin' in res.locals.user)
-    ? res.locals.user.isAdmin : undefined;
-    
   try {
-    if (username !== req.params.username) {
-      if (isAdmin === false) {
-        throw new UnauthorizedError();
-      }
+    const user = res.locals.user;
+    //CR Must be exactly equal to not true. Safer. Sring could come in as false.
+    if (!(user && (user.isAdmin || user.username === req.params.username))) {
+      throw new UnauthorizedError();
     }
     return next();
   } catch (err) {
     return next(err);
   }
 }
-
 
 module.exports = {
   authenticateJWT,

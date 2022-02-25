@@ -68,6 +68,7 @@ async function commonBeforeAll() {
     password: "password4",
     isAdmin: true,
   });
+  //CR Better to have an 'admin' like username. ADMIN or A1 etc.
 }
 
 async function commonBeforeEach() {

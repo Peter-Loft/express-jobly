@@ -15,6 +15,7 @@ const companyUpdateSchema = require("../schemas/companyUpdate.json");
 
 const router = new express.Router();
 
+//TODO CR - UPDATE ALL DOCSTRINGS WITH AUTH CHANGES
 
 /** POST / { company } =>  { company }
  *
